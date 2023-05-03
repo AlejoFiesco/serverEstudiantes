@@ -3,12 +3,26 @@ let oracledb = require('oracledb')
 let bodyParser = require('body-parser')
 let cors = require('cors');
 let app = express()
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+
+dotenv.config()
 app.use(cors({ origin: '*' }))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 let port = 5000;
 
 let connection;
+
+const transporter = nodemailer.createTransport({
+  service: hotmail,
+  auth: {
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD
+  }
+})
+
+
 
 let conectar = async () => {
   try {
@@ -62,6 +76,19 @@ app.post('/insertar', async (req, res) => {
   if (result) {
     connection.commit();
     res.send(true)
+
+    const options = {
+      from: process.env.EMAIL_SENDER,
+      to: correoPersonal,
+      subject: "Generación de Usuario",
+      text: "Bienvenido a la plataforma, muchas gracias por utilizar el aplicativo."
+    }
+
+    transporter.sendMail(options, (error, info) => {
+      if (error) console.log(error)
+      else console.log(info)
+
+    })
   }
   else res.send(false)
 })
