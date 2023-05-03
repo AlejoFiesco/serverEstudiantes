@@ -91,7 +91,8 @@ app.post('/actualizar', async (req, res) => {
     correo_institucional='${correoInstitucional}'
     WHERE codigo = '${codigo}'
   `;
-  // const result = await connection.execute(query);
+  const result = await connection.execute(query);
+  connection.commit();
   res.send(result ? true : false);
 })
 
